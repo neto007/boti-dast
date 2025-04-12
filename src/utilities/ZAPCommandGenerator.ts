@@ -1,8 +1,8 @@
 import { IDASTAnalysisArgs } from "..";
-import { SOOS_DAST_CONSTANTS } from "../constants";
+import { BOTI_DAST_CONSTANTS } from "../constants";
 import { ScanMode } from "../enums";
 
-const SOOS_ZAP_CONSTANTS = {
+const BOTI_ZAP_CONSTANTS = {
   PythonBin: "python3",
   Options: {
     AjaxSpider: "-j",
@@ -59,54 +59,50 @@ export class ZAPCommandGenerator {
     this.addEnvironmentVariable("OAUTH_TOKEN_URL", this.config.oauthTokenUrl);
   }
 
-  private generateCommand(args: string[]): string {
-    this.addOption(args, SOOS_ZAP_CONSTANTS.Options.AjaxSpider, this.config.ajaxSpider);
-    this.addOption(args, SOOS_ZAP_CONSTANTS.Options.ContextFile, this.config.contextFile);
-    this.addOption(args, SOOS_ZAP_CONSTANTS.Options.Debug, this.config.debug);
-    this.addOption(args, SOOS_ZAP_CONSTANTS.Options.Hook, SOOS_DAST_CONSTANTS.Files.ZapHookFile);
+  private addCommonOptions(args: string[]): void {
+    this.addOption(args, BOTI_ZAP_CONSTANTS.Options.AjaxSpider, this.config.ajaxSpider);
+    this.addOption(args, BOTI_ZAP_CONSTANTS.Options.ContextFile, this.config.contextFile);
+    this.addOption(args, BOTI_ZAP_CONSTANTS.Options.Debug, this.config.debug);
+    this.addOption(args, BOTI_ZAP_CONSTANTS.Options.Hook, BOTI_DAST_CONSTANTS.Files.ZapHookFile);
     this.addOption(
       args,
-      SOOS_ZAP_CONSTANTS.Options.JsonReport,
-      SOOS_DAST_CONSTANTS.Files.ReportScanResultFilename,
+      BOTI_ZAP_CONSTANTS.Options.JsonReport,
+      BOTI_DAST_CONSTANTS.Files.ReportScanResultFilename,
     );
-
-    this.addOption(args, SOOS_ZAP_CONSTANTS.Options.SpiderMinutes, this.config.fullScanMinutes);
-    this.addOption(args, SOOS_ZAP_CONSTANTS.Options.TargetUrl, this.config.targetURL);
+    this.addOption(args, BOTI_ZAP_CONSTANTS.Options.SpiderMinutes, this.config.fullScanMinutes);
+    this.addOption(args, BOTI_ZAP_CONSTANTS.Options.TargetUrl, this.config.targetURL);
     this.addHookParams();
-
-    if (this.config.otherOptions) {
-      args.push(this.config.otherOptions);
-    }
-
-    return args.join(" ");
   }
 
-  private baselineScan(): string {
-    const args = [SOOS_ZAP_CONSTANTS.PythonBin, SOOS_ZAP_CONSTANTS.Scripts.Baseline];
-    return this.generateCommand(args);
+  public getBaselineRunCommand(): string[] {
+    const args = [BOTI_ZAP_CONSTANTS.PythonBin, BOTI_ZAP_CONSTANTS.Scripts.Baseline];
+    this.addCommonOptions(args);
+    return args;
   }
 
-  private fullScan(): string {
-    const args = [SOOS_ZAP_CONSTANTS.PythonBin, SOOS_ZAP_CONSTANTS.Scripts.FullScan];
-    this.addOption(args, SOOS_ZAP_CONSTANTS.Options.TargetUrl, this.config.targetURL);
-    return this.generateCommand(args);
+  public getFullScanRunCommand(): string[] {
+    const args = [BOTI_ZAP_CONSTANTS.PythonBin, BOTI_ZAP_CONSTANTS.Scripts.FullScan];
+    this.addOption(args, BOTI_ZAP_CONSTANTS.Options.TargetUrl, this.config.targetURL);
+    this.addCommonOptions(args);
+    return args;
   }
 
-  private apiScan(): string {
-    const args = [SOOS_ZAP_CONSTANTS.PythonBin, SOOS_ZAP_CONSTANTS.Scripts.ApiScan];
-    this.addOption(args, SOOS_ZAP_CONSTANTS.Options.TargetUrl, this.config.targetURL);
-    this.addOption(args, SOOS_ZAP_CONSTANTS.Options.Format, this.config.apiScanFormat);
-    return this.generateCommand(args);
+  public getApiScanRunCommand(): string[] {
+    const args = [BOTI_ZAP_CONSTANTS.PythonBin, BOTI_ZAP_CONSTANTS.Scripts.ApiScan];
+    this.addOption(args, BOTI_ZAP_CONSTANTS.Options.TargetUrl, this.config.targetURL);
+    this.addOption(args, BOTI_ZAP_CONSTANTS.Options.Format, this.config.apiScanFormat);
+    this.addCommonOptions(args);
+    return args;
   }
 
   public runCommandGeneration(mode: ScanMode): string {
     switch (mode) {
       case ScanMode.Baseline:
-        return this.baselineScan();
+        return this.getBaselineRunCommand().join(" ");
       case ScanMode.FullScan:
-        return this.fullScan();
+        return this.getFullScanRunCommand().join(" ");
       case ScanMode.ApiScan:
-        return this.apiScan();
+        return this.getApiScanRunCommand().join(" ");
     }
   }
 }

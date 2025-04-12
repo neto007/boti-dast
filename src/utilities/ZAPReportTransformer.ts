@@ -1,21 +1,42 @@
 import * as fs from "fs";
-import { SOOS_DAST_CONSTANTS } from "../constants";
+import { BOTI_DAST_CONSTANTS } from "../constants";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-type ReportData = any;
+type ReportData = Record<string, any>;
+
+// Função auxiliar para salvar os resultados do scan
+export function saveScanResults(sourceFile: string, targetFile: string): void {
+  try {
+    // Se o arquivo de origem existir, copie para o destino
+    if (fs.existsSync(sourceFile)) {
+      fs.copyFileSync(sourceFile, targetFile);
+      console.log(`Resultados salvos em ${targetFile}`);
+    } else {
+      console.error(`Arquivo de origem ${sourceFile} não encontrado`);
+    }
+  } catch (error) {
+    console.error(`Erro ao salvar resultados: ${error}`);
+  }
+}
 
 export class ZAPReportTransformer {
   public static transformReport(reportData: ReportData): void {
     this.addDiscoveredUrls(reportData);
     this.obfuscateFields(reportData);
     this.saveReportContent(reportData);
+    // Salvar URLs descobertas em arquivo separado
+    this.writeLinesFile(
+      reportData,
+      "discoveredUrls",
+      BOTI_DAST_CONSTANTS.Files.DiscoveredUrlsFile
+    );
   }
 
   public static addDiscoveredUrls(reportData: ReportData): void {
     this.addArrayPropertyToReportFromFile(
       reportData,
       "discoveredUrls",
-      SOOS_DAST_CONSTANTS.Files.DiscoveredUrlsFile,
+      BOTI_DAST_CONSTANTS.Files.DiscoveredUrlsFile,
     );
   }
 
@@ -51,10 +72,19 @@ export class ZAPReportTransformer {
     return field.replace(/(Authorization:\s*)[^\r\n]+/, "$1****");
   }
 
-  private static saveReportContent = (reportData: ReportData) => {
+  private static writeLinesFile(
+    reportData: ReportData,
+    property: string,
+    filename: string
+  ): void {
+    const urls: string[] = reportData[property] || [];
+    fs.writeFileSync(filename, urls.join("\n"));
+  }
+
+  private static saveReportContent(reportData: ReportData): void {
     fs.writeFileSync(
-      SOOS_DAST_CONSTANTS.Files.ReportScanResultFile,
+      BOTI_DAST_CONSTANTS.Files.ReportScanResultFile,
       JSON.stringify(reportData, null, 4),
     );
-  };
+  }
 }

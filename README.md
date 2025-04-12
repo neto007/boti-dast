@@ -1,127 +1,117 @@
-# [SOOS DAST](https://soos.io/dast-product/)
+# [BOTI DAST]()
 
-SOOS is an independent software security company, located in Winooski, VT USA, building security software for your team. [SOOS, Software security, simplified](https://soos.io).
+BOTI é uma empresa de segurança de software independente, construindo software de segurança para sua equipe.
 
-Use SOOS to scan your software for [vulnerabilities](https://app.soos.io/research/vulnerabilities) and [open source license](https://app.soos.io/research/licenses) issues with [SOOS Core SCA](https://soos.io/products/sca). [Generate and ingest SBOMs](https://soos.io/products/sbom-manager). [Export reports](https://kb.soos.io/project-exports-and-reports) to industry standards. Govern your open source dependencies. Run the [SOOS DAST vulnerability scanner](https://soos.io/products/dast) against your web apps or APIs. [Scan your Docker containers](https://soos.io/products/containers) for vulnerabilities. Check your source code for issues with [SAST Analysis](https://soos.io/products/sast).
+Use BOTI para escanear seu software em busca de vulnerabilidades e problemas de licenças de código aberto. Gere e ingira SBOMs. Exporte relatórios para padrões da indústria. Governe suas dependências de código aberto. Execute o escaneador de vulnerabilidades BOTI DAST contra suas aplicações web ou APIs. Escaneie seus contêineres Docker em busca de vulnerabilidades. Verifique seu código-fonte em busca de problemas com análise SAST.
 
-[Demo SOOS](https://app.soos.io/demo) or [Register for a Free Trial](https://app.soos.io/register).
-
-If you maintain an Open Source project, sign up for the Free as in Beer [SOOS Community Edition](https://soos.io/products/community-edition).
-
-## SOOS Badge Status
-[![Dependency Vulnerabilities](https://img.shields.io/endpoint?url=https%3A%2F%2Fapi-hooks.soos.io%2Fapi%2Fshieldsio-badges%3FbadgeType%3DDependencyVulnerabilities%26pid%3Dv3et4zzuv%26branchName%3Dmain)](https://app.soos.io)
-[![Out Of Date Dependencies](https://img.shields.io/endpoint?url=https%3A%2F%2Fapi-hooks.soos.io%2Fapi%2Fshieldsio-badges%3FbadgeType%3DOutOfDateDependencies%26pid%3Dv3et4zzuv%26branchName%3Dmain)](https://app.soos.io)
-
-## Requirements
+## Requisitos
 - [Docker](https://www.docker.com/get-started)
-- Have your application or website reachable via URL.
+- Ter sua aplicação ou site acessível via URL.
 
-## How to Use
-To start the scan you need to run this command from a terminal:
+## Como Usar
+Para iniciar a varredura, você precisa executar este comando de um terminal:
 ``` shell
-docker run -it --rm soosio/dast <parameters>
+docker run -it --rm boti/dast <parâmetros>
 ```
 
-The basic command to run a baseline scan would look like:
-`docker run -it --rm soosio/dast --clientId=<YOUR_CLIENT_ID> --apiKey=<YOUR_API_KEY> --projectName="<YOUR_PROJECT_NAME>" <YOUR_TARGET_URL>`
+O comando básico para executar uma varredura de linha de base seria assim:
+`docker run -it --rm boti/dast --clientId=<SEU_CLIENT_ID> --apiKey=<SUA_API_KEY> --projectName="<NOME_DO_SEU_PROJETO>" <URL_DO_SEU_ALVO>`
 
-### Arguments
+### Argumentos
 
-| Argument | Required | Description |
+| Argumento | Obrigatório | Descrição |
 | --- | --- | --- |
-| `targetURL` | Yes | Target URL - URL of the site or api to scan. The URL should include the protocol. Ex: https://www.example.com |
+| `targetURL` | Sim | URL Alvo - URL do site ou API a ser escaneada. A URL deve incluir o protocolo. Ex: https://www.exemplo.com |
 
-### Client Parameters
+### Parâmetros do Cliente
 
-| Argument | Default | Description |
+| Argumento | Padrão | Descrição |
 | --- | --- | --- |
-| `--ajaxSpider` |  | Ajax Spider - Use the ajax spider in addition to the traditional one. Additional information: https://www.zaproxy.org/docs/desktop/addons/ajax-spider/ |
-| `--apiKey` |  | SOOS API Key - get yours from [SOOS Integration](https://app.soos.io/integrate/dast). Uses `SOOS_API_KEY` env value if present. |
-| `--authDelayTime` | `5` | Delay time in seconds to wait for the page to load after performing actions in the form. (Used only on authFormType: wait_for_password and multi_page) |
-| `--authFormType` | `simple` | simple (all fields are displayed at once), wait_for_password (Password field is displayed only after username is filled), or multi_page (Password field is displayed only after username is filled and submit is clicked) |
-| `--authLoginURL` |  | Login url to use when authentication is required |
-| `--authPassword` |  | Password to use when authentication is required |
-| `--authPasswordField` |  | Password input id to use when authentication is required |
-| `--authSecondSubmitField` |  | Second submit button id/name/XPath to use when authentication is required (for multi-page forms) |
-| `--authSubmitAction` |  | Submit action to perform on form filled. Options: click or submit |
-| `--authSubmitField` |  | Submit button id/name/XPath to use when authentication is required |
-| `--authUsername` |  | Username to use when authentication is required |
-| `--authUsernameField` |  | Username input id to use when authentication is required |
-| `--authVerificationURL` |  | URL used to verify authentication success, should be an URL that is expected to throw 200/302 during any authFormType authentication. If authentication fails when this URL is provided, the scan will be terminated. Supports plain URL or regex URL.|
-| `--bearerToken` |  | Bearer token to authenticate |
-| `--branchName` |  | The name of the branch from the SCM System |
-| `--branchURI` |  | The URI to the branch from the SCM System |
-| `--buildURI` |  | URI to CI build info |
-| `--buildVersion` |  | Version of application build artifacts |
-| `--clientId` |  | SOOS Client ID - get yours from [SOOS Integration](https://app.soos.io/integrate/sast). Uses `SOOS_API_CLIENT` env value if present. |
-| `--commitHash` |  | The commit hash value from the SCM System |
-| `--contextFile` |  | Context file which will be loaded prior to scanning the target |
-| `--debug` |  | Enable debug logging for ZAP. |
-| `--excludeUrlsFile` | | Path to a file containing regex URLs to exclude, one per line. eg `--excludeUrlsFile=exclude_urls.txt`
-| `--disableRules` |  | Comma separated list of ZAP rules IDs to disable. List for reference https://www.zaproxy.org/docs/alerts/ |
-| `--exportFormat`   |  | Write the scan result to this file format. Options: CsafVex, CycloneDx, Sarif, Spdx, SoosIssues, SoosLicenses, SoosPackages, SoosVulnerabilities |
-| `--exportFileType` |  | Write the scan result to this file type (when used with exportFormat). Options: Csv, Html, Json, Text, Xml                                       |
-| `--fullScanMinutes` |  | Number of minutes for the spider to run |
-| `--logLevel` |  | Minimum level to show logs: DEBUG INFO, WARN, FAIL, ERROR. |
-| `--oauthParameters` |  | Parameters to be added to the OAuth token request. (eg --oauthParameters="client_id:clientID, client_secret:clientSecret, grant_type:client_credentials") |
-| `--oauthTokenUrl` |  | The authentication URL that grants the access_token. |
-| `--onFailure` | `continue_on_failure` | Action to perform when the scan fails. Options: fail_the_build, continue_on_failure |
-| `--operatingEnvironment` |  | Set Operating environment for information purposes only |
-| `--otherOptions` |  | Additional command line arguments for items not supported by the set of parameters above |
-| `--projectName` |  | Project Name - this is what will be displayed in the SOOS app |
-| `--requestHeaders` |  | Set extra Header requests |
-| `--scanMode` | `baseline` | Scan Mode - Available modes: baseline, fullscan, and apiscan (for more information about scan modes visit https://github.com/soos-io/soos-dast#scan-modes) |
+| `--ajaxSpider` |  | Ajax Spider - Usa o spider ajax além do tradicional. Informações adicionais: https://www.zaproxy.org/docs/desktop/addons/ajax-spider/ |
+| `--authDelayTime` | `5` | Tempo de atraso em segundos para aguardar o carregamento da página após realizar ações no formulário. (Usado apenas em authFormType: wait_for_password e multi_page) |
+| `--authFormType` | `simple` | simple (todos os campos são exibidos de uma vez), wait_for_password (campo de senha é exibido somente após o nome de usuário ser preenchido) ou multi_page (campo de senha é exibido somente após o nome de usuário ser preenchido e o envio ser clicado) |
+| `--authLoginURL` |  | URL de login a ser usada quando a autenticação é necessária |
+| `--authPassword` |  | Senha a ser usada quando a autenticação é necessária |
+| `--authPasswordField` |  | ID do campo de entrada de senha a ser usado quando a autenticação é necessária |
+| `--authSecondSubmitField` |  | ID/nome/XPath do segundo botão de envio a ser usado quando a autenticação é necessária (para formulários de várias páginas) |
+| `--authSubmitAction` |  | Ação de envio a ser realizada no formulário preenchido. Opções: click ou submit |
+| `--authSubmitField` |  | ID/nome/XPath do botão de envio a ser usado quando a autenticação é necessária |
+| `--authUsername` |  | Nome de usuário a ser usado quando a autenticação é necessária |
+| `--authUsernameField` |  | ID do campo de entrada de nome de usuário a ser usado quando a autenticação é necessária |
+| `--authVerificationURL` |  | URL usada para verificar o sucesso da autenticação, deve ser uma URL que se espera que lance 200/302 durante qualquer autenticação authFormType. Se a autenticação falhar quando esta URL for fornecida, a varredura será terminada. Suporta URL simples ou URL regex.|
+| `--bearerToken` |  | Token bearer para autenticar |
+| `--branchName` |  | O nome da ramificação do Sistema SCM |
+| `--branchURI` |  | O URI para a ramificação do Sistema SCM |
+| `--buildURI` |  | URI para informações de compilação CI |
+| `--buildVersion` |  | Versão dos artefatos de compilação do aplicativo |
+| `--commitHash` |  | O valor do hash de commit do Sistema SCM |
+| `--contextFile` |  | Arquivo de contexto que será carregado antes de escanear o alvo |
+| `--debug` |  | Ativa o registro de depuração para ZAP. |
+| `--excludeUrlsFile` | | Caminho para um arquivo contendo URLs regex para excluir, um por linha. por exemplo `--excludeUrlsFile=exclude_urls.txt`
+| `--disableRules` |  | Lista separada por vírgula de IDs de regras ZAP para desabilitar. Lista para referência https://www.zaproxy.org/docs/alerts/ |
+| `--exportFormat`   |  | Escreva o resultado da varredura neste formato de arquivo. Opções: CsafVex, CycloneDx, Sarif, Spdx, BotiIssues, BotiLicenses, BotiPackages, BotiVulnerabilities |
+| `--exportFileType` |  | Escreva o resultado da varredura neste tipo de arquivo (quando usado com exportFormat). Opções: Csv, Html, Json, Text, Xml                                       |
+| `--fullScanMinutes` |  | Número de minutos para o spider executar |
+| `--logLevel` |  | Nível mínimo para mostrar logs: DEBUG INFO, WARN, FAIL, ERROR. |
+| `--oauthParameters` |  | Parâmetros a serem adicionados à requisição de token OAuth. (por exemplo --oauthParameters="client_id:clientID, client_secret:clientSecret, grant_type:client_credentials") |
+| `--oauthTokenUrl` |  | A URL de autenticação que concede o access_token. |
+| `--onFailure` | `continue_on_failure` | Ação a ser realizada quando a varredura falha. Opções: fail_the_build, continue_on_failure |
+| `--operatingEnvironment` |  | Definir ambiente operacional apenas para fins de informação |
+| `--otherOptions` |  | Argumentos adicionais de linha de comando para itens não suportados pelo conjunto de parâmetros acima |
+| `--projectName` |  | Nome do Projeto - isso é o que será exibido no aplicativo BOTI |
+| `--requestHeaders` |  | Definir solicitações de cabeçalho extras |
+| `--scanMode` | `baseline` | Modo de Varredura - Modos disponíveis: baseline, fullscan e apiscan (para mais informações sobre modos de varredura, visite https://github.com/boti/boti-dast#scan-modes) |
 
-## Scan Modes
+## Modos de Varredura
 
 ### Baseline
 
-It runs the [ZAP](https://www.zaproxy.org/docs/docker/about/) spider against the specified target for (by default) 1 minute and then waits for the passive scanning to complete before reporting the results.
+Ele executa o spider [ZAP](https://www.zaproxy.org/docs/docker/about/) contra o alvo especificado por (por padrão) 1 minuto e depois espera que a varredura passiva seja concluída antes de relatar os resultados.
 
-This means that the script doesn't perform any actual ‘attacks’ and will run for a relatively short period of time (a few minutes at most).
+Isso significa que o script não executa nenhum 'ataque' real e será executado por um período relativamente curto (alguns minutos no máximo).
 
-By default, it reports all alerts as WARNings but you can specify a config file which can change any rules to `FAIL` or `IGNORE`.
+Por padrão, ele relata todos os alertas como AVISOs, mas você pode especificar um arquivo de configuração que pode alterar qualquer regra para `FAIL` ou `IGNORE`.
 
-This mode is intended to be ideal to run in a `CI/CD` environment, even against production sites.
+Este modo é destinado a ser ideal para execução em um ambiente `CI/CD`, mesmo contra sites de produção.
 
 ### Full Scan
 
-It runs the [ZAP](https://www.zaproxy.org/docs/docker/about/) spider against the specified target (by default with no time limit) followed by an optional ajax spider scan and then a full `Active Scan` before reporting the results.
+Ele executa o spider [ZAP](https://www.zaproxy.org/docs/docker/about/) contra o alvo especificado (por padrão sem limite de tempo) seguido por uma varredura opcional de ajax spider e, em seguida, uma `Varredura Ativa` completa antes de relatar os resultados.
 
-This means that the script does perform actual ‘attacks’ and can potentially run for a long period of time. You should NOT use it on web applications that you do not own. `Active Scan` can only find certain types of vulnerabilities. Logical vulnerabilities, such as broken access control, will not be found by any active or automated vulnerability scanning. Manual penetration testing should always be performed in addition to active scanning to find all types of vulnerabilities.
+Isso significa que o script executa 'ataques' reais e pode potencialmente ser executado por um longo período de tempo. Você NÃO deve usá-lo em aplicativos web que não sejam de sua propriedade. `Varredura Ativa` pode encontrar apenas certos tipos de vulnerabilidades. Vulnerabilidades lógicas, como controle de acesso quebrado, não serão encontradas por qualquer varredura ativa ou automatizada de vulnerabilidade. Testes manuais de penetração devem sempre ser realizados além da varredura ativa para encontrar todos os tipos de vulnerabilidades.
 
-By default, it reports all alerts as WARNings but you can specify a config file which can change any rules to FAIL or IGNORE. The configuration works in a very similar way as the [Baseline Mode](#baseline)
+Por padrão, ele relata todos os alertas como AVISOs, mas você pode especificar um arquivo de configuração que pode alterar qualquer regra para FAIL ou IGNORE. A configuração funciona de maneira muito semelhante ao [Modo Baseline](#baseline)
 
 ### API Scan
 
-It is tuned for performing scans against APIs defined by `openapi`, `soap`, or `graphql` via either a local file or a URL.
+Ele é ajustado para realizar varreduras contra APIs definidas por `openapi`, `soap` ou `graphql` por meio de um arquivo local ou uma URL.
 
-To point to a local file, use the following syntax:
+Para apontar para um arquivo local, use a seguinte sintaxe:
 ```
-docker run -v <absolute-path-to-local-file>:/zap/wrk/:rw -it --rm soosio/dast --clientId=<client>--apiKey=<apiKey> --projectName=<api project name> --scanMode=apiscan --apiScanFormat=openapi swagger.yaml
+docker run -v <caminho-absoluto-para-arquivo-local>:/zap/wrk/:rw -it --rm boti/dast --clientId=<cliente>--apiKey=<apiKey> --projectName=<nome do projeto api> --scanMode=apiscan --apiScanFormat=openapi swagger.yaml
 ```
 
-Be sure the local file still points to the live endpoint of your API. E.g. for `openapi` YAML, you would set the `servers` section:
+Certifique-se de que o arquivo local ainda aponte para o endpoint ao vivo de sua API. Por exemplo, para YAML `openapi`, você definiria a seção `servers`:
 ```
 servers:
-  - url: https://myapi.example.com
+  - url: https://minhaapi.exemplo.com
 ```
 
-NOTE: The DNS name of the API being scanned must be resolved by the Docker container. Use an IP address if this is not possible.
+NOTA: O nome DNS da API sendo escaneada deve ser resolvido pelo contêiner Docker. Use um endereço IP se isso não for possível.
 
-It imports the definition that you specify and then runs an `Active Scan` against the URLs found. The `Active Scan` is tuned to APIs, so it doesn't bother looking for things like `XSSs`.
+Ele importa a definição que você especifica e, em seguida, executa uma `Varredura Ativa` contra as URLs encontradas. A `Varredura Ativa` é ajustada para APIs, então não se preocupa em procurar coisas como `XSSs`.
 
-It also includes 2 scripts that:
-- Raise alerts for any HTTP Server Error response codes
-- Raise alerts for any URLs that return content types that are not usually associated with APIs
+Ele também inclui 2 scripts que:
+- Levantam alertas para quaisquer códigos de resposta de erro do servidor HTTP
+- Levantam alertas para quaisquer URLs que retornem tipos de conteúdo que não são geralmente associados a APIs
 
-## References
+## Referências
  - [ZAP](https://www.zaproxy.org/)
  - [Docker](https://docs.docker.com/)
 
 
-### Notes
-Be sure to use the public registry for installation of NPM packages:
+### Notas
+Certifique-se de usar o registro público para instalação de pacotes NPM:
  `npm install --registry https://registry.npmjs.org/` 
 
-Be sure to wait for all actions to finish before tagging, releasing etc.
+Certifique-se de aguardar que todas as ações sejam concluídas antes de marcar, liberar, etc.

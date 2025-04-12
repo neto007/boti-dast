@@ -1,0 +1,342 @@
+{
+    "__doc__": null,
+    "__module__": "zapv2.ascan",
+    "__weakref__": null,
+    "attack_mode_queue": "-1",
+    "excluded_from_scan": [],
+    "excluded_param_types": [
+        {
+            "name": "Any",
+            "id": "-1"
+        },
+        {
+            "name": "QueryString",
+            "id": "1"
+        },
+        {
+            "name": "PostData",
+            "id": "2"
+        },
+        {
+            "name": "URLPath",
+            "id": "16"
+        },
+        {
+            "name": "Header",
+            "id": "8"
+        },
+        {
+            "name": "Cookie",
+            "id": "4"
+        },
+        {
+            "name": "JSON",
+            "id": "37"
+        },
+        {
+            "name": "GraphQL Inline Arguments",
+            "id": "38"
+        },
+        {
+            "name": "Parameter (non-file) (Multipart Form-Data)",
+            "id": "33"
+        },
+        {
+            "name": "File Name (Multipart Form-Data)",
+            "id": "35"
+        },
+        {
+            "name": "File Content (Multipart Form-Data)",
+            "id": "34"
+        },
+        {
+            "name": "Content-Type (Multipart Form-Data)",
+            "id": "36"
+        }
+    ],
+    "excluded_params": [
+        {
+            "parameter": "(?i)ASP.NET_SessionId",
+            "idx": "0",
+            "url": "*",
+            "type": {
+                "name": "Any",
+                "id": "-1"
+            }
+        },
+        {
+            "parameter": "(?i)ASPSESSIONID.*",
+            "idx": "1",
+            "url": "*",
+            "type": {
+                "name": "Any",
+                "id": "-1"
+            }
+        },
+        {
+            "parameter": "(?i)PHPSESSID",
+            "idx": "2",
+            "url": "*",
+            "type": {
+                "name": "Any",
+                "id": "-1"
+            }
+        },
+        {
+            "parameter": "(?i)SITESERVER",
+            "idx": "3",
+            "url": "*",
+            "type": {
+                "name": "Any",
+                "id": "-1"
+            }
+        },
+        {
+            "parameter": "(?i)sessid",
+            "idx": "4",
+            "url": "*",
+            "type": {
+                "name": "Any",
+                "id": "-1"
+            }
+        },
+        {
+            "parameter": "__VIEWSTATE",
+            "idx": "5",
+            "url": "*",
+            "type": {
+                "name": "PostData",
+                "id": "2"
+            }
+        },
+        {
+            "parameter": "__EVENTVALIDATION",
+            "idx": "6",
+            "url": "*",
+            "type": {
+                "name": "PostData",
+                "id": "2"
+            }
+        },
+        {
+            "parameter": "__EVENTTARGET",
+            "idx": "7",
+            "url": "*",
+            "type": {
+                "name": "PostData",
+                "id": "2"
+            }
+        },
+        {
+            "parameter": "__EVENTARGUMENT",
+            "idx": "8",
+            "url": "*",
+            "type": {
+                "name": "PostData",
+                "id": "2"
+            }
+        },
+        {
+            "parameter": "javax.faces.ViewState",
+            "idx": "9",
+            "url": "*",
+            "type": {
+                "name": "PostData",
+                "id": "2"
+            }
+        },
+        {
+            "parameter": "(?i)jsessionid",
+            "idx": "10",
+            "url": "*",
+            "type": {
+                "name": "Any",
+                "id": "-1"
+            }
+        },
+        {
+            "parameter": "cfid",
+            "idx": "11",
+            "url": "*",
+            "type": {
+                "name": "Cookie",
+                "id": "4"
+            }
+        },
+        {
+            "parameter": "cftoken",
+            "idx": "12",
+            "url": "*",
+            "type": {
+                "name": "Cookie",
+                "id": "4"
+            }
+        }
+    ],
+    "option_add_query_param": "false",
+    "option_allow_attack_on_start": "false",
+    "option_attack_policy": "internal_error",
+    "option_default_policy": "internal_error",
+    "option_delay_in_ms": "0",
+    "option_encode_cookie_values": "false",
+    "option_excluded_param_list": [
+        {
+            "parameter": "(?i)ASP.NET_SessionId",
+            "idx": "0",
+            "url": "*",
+            "type": {
+                "name": "Any",
+                "id": "-1"
+            }
+        },
+        {
+            "parameter": "(?i)ASPSESSIONID.*",
+            "idx": "1",
+            "url": "*",
+            "type": {
+                "name": "Any",
+                "id": "-1"
+            }
+        },
+        {
+            "parameter": "(?i)PHPSESSID",
+            "idx": "2",
+            "url": "*",
+            "type": {
+                "name": "Any",
+                "id": "-1"
+            }
+        },
+        {
+            "parameter": "(?i)SITESERVER",
+            "idx": "3",
+            "url": "*",
+            "type": {
+                "name": "Any",
+                "id": "-1"
+            }
+        },
+        {
+            "parameter": "(?i)sessid",
+            "idx": "4",
+            "url": "*",
+            "type": {
+                "name": "Any",
+                "id": "-1"
+            }
+        },
+        {
+            "parameter": "__VIEWSTATE",
+            "idx": "5",
+            "url": "*",
+            "type": {
+                "name": "PostData",
+                "id": "2"
+            }
+        },
+        {
+            "parameter": "__EVENTVALIDATION",
+            "idx": "6",
+            "url": "*",
+            "type": {
+                "name": "PostData",
+                "id": "2"
+            }
+        },
+        {
+            "parameter": "__EVENTTARGET",
+            "idx": "7",
+            "url": "*",
+            "type": {
+                "name": "PostData",
+                "id": "2"
+            }
+        },
+        {
+            "parameter": "__EVENTARGUMENT",
+            "idx": "8",
+            "url": "*",
+            "type": {
+                "name": "PostData",
+                "id": "2"
+            }
+        },
+        {
+            "parameter": "javax.faces.ViewState",
+            "idx": "9",
+            "url": "*",
+            "type": {
+                "name": "PostData",
+                "id": "2"
+            }
+        },
+        {
+            "parameter": "(?i)jsessionid",
+            "idx": "10",
+            "url": "*",
+            "type": {
+                "name": "Any",
+                "id": "-1"
+            }
+        },
+        {
+            "parameter": "cfid",
+            "idx": "11",
+            "url": "*",
+            "type": {
+                "name": "Cookie",
+                "id": "4"
+            }
+        },
+        {
+            "parameter": "cftoken",
+            "idx": "12",
+            "url": "*",
+            "type": {
+                "name": "Cookie",
+                "id": "4"
+            }
+        }
+    ],
+    "option_handle_anti_csrf_tokens": "true",
+    "option_host_per_scan": "2",
+    "option_inject_plugin_id_in_header": "false",
+    "option_max_alerts_per_rule": "0",
+    "option_max_chart_time_in_mins": "10",
+    "option_max_results_to_list": "1000",
+    "option_max_rule_duration_in_mins": "0",
+    "option_max_scan_duration_in_mins": "0",
+    "option_max_scans_in_ui": "5",
+    "option_prompt_in_attack_mode": "true",
+    "option_prompt_to_clear_finished_scans": "true",
+    "option_rescan_in_attack_mode": "true",
+    "option_scan_headers_all_requests": "false",
+    "option_scan_null_json_values": "false",
+    "option_show_advanced_dialog": "false",
+    "option_target_params_enabled_rpc": "191",
+    "option_target_params_injectable": "3",
+    "option_thread_per_host": "8",
+    "scan_policy_names": [
+        "API",
+        "API-Minimal",
+        "Default Policy",
+        "Dev CICD",
+        "Dev Full",
+        "Dev Standard",
+        "QA Full",
+        "QA Standard",
+        "Sequence",
+        "St-High-Th-High",
+        "St-High-Th-Low",
+        "St-High-Th-Med",
+        "St-Ins-Th-High",
+        "St-Ins-Th-Low",
+        "St-Ins-Th-Med",
+        "St-Low-Th-High",
+        "St-Low-Th-Low",
+        "St-Low-Th-Med",
+        "St-Med-Th-High",
+        "St-Med-Th-Low"
+    ],
+    "scans": []
+}

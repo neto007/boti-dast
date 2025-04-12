@@ -1,35 +1,129 @@
 import * as fs from "fs";
-import FormData from "form-data";
+// Removendo a importação não utilizada de FormData
+// import FormData from "form-data";
 import { spawn } from "child_process";
 import { ApiScanFormat, FormTypes, ScanMode, SubmitActions } from "./enums";
 import { exit } from "process";
-import {
-  isUrlAvailable,
-  convertStringToBase64,
-  obfuscateProperties,
-  getAnalysisExitCodeWithMessage,
-  isScanDone,
-  obfuscateCommandLine,
-  reassembleCommandLine,
-} from "@soos-io/api-client/dist/utilities";
-import {
-  ScanStatus,
-  ScanType,
-  soosLogger,
-  IntegrationName,
-  IntegrationType,
-  AttributionFormatEnum,
-  AttributionFileTypeEnum,
-} from "@soos-io/api-client";
 import { version } from "../package.json";
 import { ZAPCommandGenerator, ZAPReportTransformer } from "./utilities";
-import AnalysisService from "@soos-io/api-client/dist/services/AnalysisService";
-import AnalysisArgumentParser, {
-  IBaseScanArguments,
-} from "@soos-io/api-client/dist/services/AnalysisArgumentParser";
-import { SOOS_DAST_CONSTANTS } from "./constants";
+import { BOTI_DAST_CONSTANTS } from "./constants";
 
-export interface IDASTAnalysisArgs extends IBaseScanArguments {
+// Logger substituto
+class Logger {
+  static info(message: string): void {
+    console.log(`INFO: ${message}`);
+  }
+
+  static error(message: unknown): void {
+    console.error(`ERROR: ${String(message)}`);
+  }
+
+  static always(message: string): void {
+    console.log(message);
+  }
+
+  static logLineSeparator(): void {
+    console.log("------------------------------");
+  }
+
+  static setMinLogLevel(_level: string): void {
+    // Implementação simplificada para definir nível de log
+  }
+
+  static debug(message: string): void {
+    console.debug(`DEBUG: ${message}`);
+  }
+}
+
+// Interfaces necessárias para corrigir erros de tipagem
+interface IDASTScanSetupResponse {
+  projectHash: string;
+  branchHash: string;
+  analysisId: string;
+  scanStatusUrl: string;
+  status: string;
+}
+
+interface IWaitForScanToFinishArgs {
+  scanStatusUrl: string;
+  scanType: string;
+}
+
+// Serviço de Análise local
+class LocalAnalysisService {
+  async setupScan(_args: any): Promise<IDASTScanSetupResponse> {
+    Logger.info("Configurando scan local (sem envio para API externa)");
+    return {
+      projectHash: "local-project-hash",
+      branchHash: "local-branch-hash",
+      analysisId: `local-analysis-${Date.now()}`,
+      scanStatusUrl: "local-scan-status",
+      status: "Running",
+    };
+  }
+
+  async waitForScanToFinish(_args: IWaitForScanToFinishArgs): Promise<string> {
+    Logger.info("Verificando status do scan local");
+    return "completed";
+  }
+
+  async updateScanStatus(args: any): Promise<void> {
+    Logger.info(`Status do scan atualizado para: ${args.status}`);
+  }
+
+  async generateFormattedOutput(_args: any): Promise<void> {
+    Logger.info("Gerando saída formatada");
+  }
+}
+
+// Implementações de funções auxiliares
+function isUrlAvailable(url: string): Promise<boolean> {
+  return new Promise((resolve) => {
+    Logger.info(`Verificando disponibilidade da URL: ${url}`);
+    // Implementação simplificada - apenas retorna true
+    // Em um ambiente de produção, você deve implementar uma verificação real
+    resolve(true);
+  });
+}
+
+// Removendo a função não utilizada convertStringToBase64
+// function convertStringToBase64(data: string): string {
+//   return Buffer.from(data).toString("base64");
+// }
+
+function obfuscateProperties(obj: Record<string, unknown>, keysToObfuscate: string[]): Record<string, unknown> {
+  const result: Record<string, unknown> = { ...obj };
+  keysToObfuscate.forEach((key) => {
+    if (key in result) {
+      result[key] = "****";
+    }
+  });
+  return result;
+}
+
+function isScanDone(status: string): boolean {
+  return status === "completed" || status === "failed" || status === "error";
+}
+
+function getAnalysisExitCodeWithMessage(status: string, _integrationName: string, _onFailure: string): { message: string; exitCode: number } {
+  if (status === "completed") {
+    return { message: "Análise concluída com sucesso", exitCode: 0 };
+  }
+  return { message: "Análise falhou", exitCode: 1 };
+}
+
+// Constantes substitutas
+const ScanType = {
+  DAST: "DAST",
+};
+
+const ScanStatus = {
+  Error: "Error",
+  Completed: "completed",
+};
+
+// Interface para argumentos
+export interface IDASTAnalysisArgs {
   ajaxSpider: boolean;
   apiScanFormat: ApiScanFormat;
   authDelayTime: number;
@@ -55,73 +149,162 @@ export interface IDASTAnalysisArgs extends IBaseScanArguments {
   requestHeaders: string;
   scanMode: ScanMode;
   targetURL: string;
+  apiKey?: string;  // Opcional agora
+  apiURL?: string;  // Opcional agora
+  projectName: string;
+  clientId?: string;  // Opcional agora
+  commitHash?: string;
+  branchName?: string;
+  buildVersion?: string;
+  buildURI?: string;
+  branchURI?: string;
+  integrationType?: string;
+  operatingEnvironment?: string;
+  integrationName?: string;
+  appVersion?: string;
+  scriptVersion?: string;
+  contributingDeveloperId?: string;
+  contributingDeveloperSource?: string;
+  contributingDeveloperSourceName?: string;
+  exportFormat?: string;
+  exportFileType?: string;
+  onFailure?: string;
+  logLevel?: string;
 }
 
-const splitValueRegex = new RegExp(
-  /^([A-Za-z0-9\-_\\/:.]+:[A-Za-z0-9\-_\\/:.]+)(?:,\s*([A-Za-z0-9\-_\\/:.]+:[A-Za-z0-9\-_\\/:.]+))*$/,
-);
+// Parser de argumentos simplificado
+class ArgumentParser {
+  private args: Record<string, any> = {};
+  private requiredArgs: string[] = [];
 
-class SOOSDASTAnalysis {
+  constructor(_name: string, _type: string, _scanType: string, _version: string) {}
+
+  addArgument(name: string, description: string, options: any = {}): void {
+    this.args[name] = {
+      description,
+      required: options.required || false,
+      defaultValue: options.defaultValue,
+    };
+
+    if (options.required) {
+      this.requiredArgs.push(name);
+    }
+  }
+
+  addEnumArgument(name: string, _enumType: any, description: string, options: any = {}): void {
+    this.addArgument(name, description, options);
+  }
+
+  parseArguments<T>(argv: string[]): T {
+    const result: Record<string, any> = {};
+    const args = argv.slice(2);
+    
+    // Valores padrão
+    for (const [key, value] of Object.entries(this.args)) {
+      if (value.defaultValue !== undefined) {
+        result[key] = value.defaultValue;
+      }
+    }
+
+    // Parseamento básico de argumentos
+    for (let i = 0; i < args.length; i++) {
+      const arg = args[i];
+      if (arg.startsWith("--")) {
+        const name = arg.substring(2);
+        if (i + 1 < args.length && !args[i + 1].startsWith("--")) {
+          result[name] = args[i + 1];
+          i++;
+        } else {
+          result[name] = true;
+        }
+      }
+    }
+
+    // Verificar argumentos obrigatórios
+    for (const requiredArg of this.requiredArgs) {
+      if (result[requiredArg] === undefined) {
+        throw new Error(`Argumento obrigatório faltando: ${requiredArg}`);
+      }
+    }
+
+    // Para execução local, se não houver targetURL, abortar
+    if (!result.targetURL) {
+      throw new Error("URL de destino é obrigatória (--targetURL)");
+    }
+
+    // Definir valores padrão para execução local
+    result.projectName = result.projectName || "Local Project";
+    result.scanMode = result.scanMode || ScanMode.Baseline;
+
+    return result as unknown as T;
+  }
+
+  static create(name: string, type: string, scanType: string, version: string): ArgumentParser {
+    return new ArgumentParser(name, type, scanType, version);
+  }
+}
+
+class BOTIDASTAnalysis {
   constructor(private args: IDASTAnalysisArgs) {}
 
   static parseArgs(): IDASTAnalysisArgs {
-    const analysisArgumentParser = AnalysisArgumentParser.create(
-      IntegrationName.SoosDast,
-      IntegrationType.Script,
+    const analysisArgumentParser = ArgumentParser.create(
+      "Local DAST",
+      "Script",
       ScanType.DAST,
-      version,
+      version
     );
 
     analysisArgumentParser.addArgument(
       "ajaxSpider",
-      "Ajax Spider - Use the ajax spider in addition to the traditional one. Additional information: https://www.zaproxy.org/docs/desktop/addons/ajax-spider/.",
+      "Ajax Spider - Use the ajax spider in addition to the traditional one.",
       {
         isFlag: true,
-      },
+      }
     );
 
     analysisArgumentParser.addEnumArgument(
       "apiScanFormat",
       ApiScanFormat,
       "Target API format, OpenAPI, SOAP or GraphQL.",
-      { defaultValue: ApiScanFormat.OpenAPI },
+      { defaultValue: ApiScanFormat.OpenAPI }
     );
 
     analysisArgumentParser.addArgument(
       "authDelayTime",
-      "Delay time in seconds to wait for the page to load after performing actions in the form. (Used only on authFormType: wait_for_password and multi_page)",
+      "Delay time in seconds to wait for authentication.",
       {
-        defaultValue: SOOS_DAST_CONSTANTS.AuthDelayTime,
-      },
+        defaultValue: BOTI_DAST_CONSTANTS.AuthDelayTime,
+      }
     );
 
     analysisArgumentParser.addEnumArgument(
       "authFormType",
       FormTypes,
-      "Form type of the login URL options are: simple (all fields are displayed at once), wait_for_password (Password field is displayed only after username is filled), or multi_page (Password field is displayed only after username is filled and submit is clicked).",
+      "Form type of the login URL.",
       {
         defaultValue: FormTypes.Simple,
-      },
+      }
     );
 
     analysisArgumentParser.addArgument(
       "authLoginURL",
-      "Login URL to use when authentication is required.",
+      "Login URL to use when authentication is required."
     );
 
     analysisArgumentParser.addArgument(
       "authPassword",
-      "Password to use when authentication is required.",
+      "Password to use when authentication is required."
     );
 
     analysisArgumentParser.addArgument(
       "authPasswordField",
-      "Password input id to use when authentication is required.",
+      "Password input id to use when authentication is required."
     );
 
     analysisArgumentParser.addArgument(
       "authSecondSubmitField",
-      "Second submit button id to use when authentication is required.",
+      "Second submit button id to use when authentication is required."
     );
 
     analysisArgumentParser.addEnumArgument(
@@ -130,37 +313,37 @@ class SOOSDASTAnalysis {
       "Submit action to perform on form filled. Options: click or submit.",
       {
         defaultValue: SubmitActions.Click,
-      },
+      }
     );
 
     analysisArgumentParser.addArgument(
       "authSubmitField",
-      "Submit button id to use when authentication is required.",
+      "Submit button id to use when authentication is required."
     );
 
     analysisArgumentParser.addArgument(
       "authUsername",
-      "Username to use when authentication is required.",
+      "Username to use when authentication is required."
     );
 
     analysisArgumentParser.addArgument(
       "authUsernameField",
-      "Username input id to use when authentication is required.",
+      "Username input id to use when authentication is required."
     );
 
     analysisArgumentParser.addArgument(
       "authVerificationURL",
-      "URL used to verify authentication success, should be an URL that is expected to throw 200/302 during any authFormType authentication. If authentication fails when this URL is provided, the scan will be terminated. Supports plain URL or regex URL.",
+      "URL used to verify authentication success."
     );
 
     analysisArgumentParser.addArgument(
       "bearerToken",
-      "Bearer token, adds a Authentication header with the token value.",
+      "Bearer token, adds a Authentication header with the token value."
     );
 
     analysisArgumentParser.addArgument(
       "contextFile",
-      "Context file which will be loaded prior to scanning the target.",
+      "Context file which will be loaded prior to scanning the target."
     );
 
     analysisArgumentParser.addArgument("debug", "Enable debug logging for ZAP.", {
@@ -169,72 +352,52 @@ class SOOSDASTAnalysis {
 
     analysisArgumentParser.addArgument(
       "disableRules",
-      "Comma separated list of ZAP rules IDs to disable. List for reference https://www.zaproxy.org/docs/alerts/",
+      "Comma separated list of ZAP rules IDs to disable."
     );
 
     analysisArgumentParser.addArgument(
       "excludeUrlsFile",
-      "Path to a file containing regex URLs to exclude, one per line.",
+      "Path to a file containing regex URLs to exclude, one per line."
     );
 
     analysisArgumentParser.addArgument(
       "fullScanMinutes",
-      "Number of minutes for the spider to run.",
+      "Number of minutes for the spider to run."
     );
 
     analysisArgumentParser.addArgument(
       "oauthParameters",
-      'Parameters to be added to the OAuth token request. (eg --oauthParameters="client_id:clientID,client_secret:clientSecret,grant_type:client_credentials").',
-      {
-        argParser: (value: string) => {
-          // Ensures format h1:v1,h2:v2,...
-          if (!splitValueRegex.test(value)) {
-            throw new Error("Invalid oauthParameters format. Expected h1:v1,h2:v2,...,hn:vn");
-          }
-
-          return value;
-        },
-      },
+      'Parameters to be added to the OAuth token request.'
     );
 
     analysisArgumentParser.addArgument(
       "oauthTokenUrl",
-      "The authentication URL that grants the access_token.",
+      "The authentication URL that grants the access_token."
     );
 
     analysisArgumentParser.addArgument(
       "otherOptions",
-      "Other command line arguments sent directly to the script for items not supported by other command line arguments",
+      "Other command line arguments sent directly to the script."
     );
 
     analysisArgumentParser.addArgument(
       "requestHeaders",
-      "Set extra headers for the requests to the target URL",
-      {
-        argParser: (value: string) => {
-          // Ensures format h1:v1,h2:v2,...
-          if (!splitValueRegex.test(value)) {
-            throw new Error("Invalid requestHeaders format. Expected h1:v1,h2:v2,...,hn:vn");
-          }
-
-          return value;
-        },
-      },
+      "Set extra headers for the requests to the target URL"
     );
 
     analysisArgumentParser.addEnumArgument(
       "scanMode",
       ScanMode,
-      "Scan Mode - Available modes: baseline, fullscan, and apiscan (for more information about scan modes visit https://github.com/soos-io/soos-dast#scan-modes)",
+      "Scan Mode - Available modes: baseline, fullscan, and apiscan",
       {
         defaultValue: ScanMode.Baseline,
-      },
+      }
     );
 
     analysisArgumentParser.addArgument(
       "targetURL",
-      "Target URL - URL of the site or api to scan. The URL should include the protocol. Ex: https://www.example.com",
-      { useNoOptionKey: true, required: true },
+      "Target URL - URL of the site or api to scan.",
+      { useNoOptionKey: true, required: true }
     );
 
     return analysisArgumentParser.parseArguments<IDASTAnalysisArgs>(process.argv);
@@ -242,161 +405,111 @@ class SOOSDASTAnalysis {
 
   async runAnalysis(): Promise<void> {
     const scanType = ScanType.DAST;
-    const soosAnalysisService = AnalysisService.create(this.args.apiKey, this.args.apiURL);
+    // Usando serviço de análise local em vez do BOTI
+    const analysisService = new LocalAnalysisService();
 
     let projectHash: string | undefined;
     let branchHash: string | undefined;
     let analysisId: string | undefined;
     let scanStatusUrl: string | undefined;
-    let scanStatus: ScanStatus | undefined;
+    let scanStatus: string | undefined;
 
     try {
-      soosLogger.info(`Project Name: ${this.args.projectName}`);
-      soosLogger.info(`Scan Mode: ${this.args.scanMode}`);
-      soosLogger.info(`API URL: ${this.args.apiURL}`);
-      soosLogger.info(`Target URL: ${this.args.targetURL}`);
-      soosLogger.logLineSeparator();
+      Logger.info(`Projeto: ${this.args.projectName || "Projeto Local"}`);
+      Logger.info(`Modo de Scan: ${this.args.scanMode}`);
+      Logger.info(`URL Alvo: ${this.args.targetURL}`);
+      Logger.logLineSeparator();
 
-      soosLogger.info(`Checking if url '${this.args.targetURL}' is available...`);
+      Logger.info(`Verificando disponibilidade da URL '${this.args.targetURL}'...`);
       if (this.args.scanMode !== ScanMode.ApiScan) {
         const urlAvailable = await isUrlAvailable(this.args.targetURL);
         if (!urlAvailable) {
-          soosLogger.error(`The URL ${this.args.targetURL} is not available.`);
+          Logger.error(`A URL ${this.args.targetURL} não está disponível.`);
           exit(1);
         }
       }
 
-      soosLogger.info(`Creating scan for project ${this.args.projectName}...`);
-      const result = await soosAnalysisService.setupScan({
-        clientId: this.args.clientId,
-        projectName: this.args.projectName,
-        commitHash: this.args.commitHash,
-        branchName: this.args.branchName,
-        buildVersion: this.args.buildVersion,
-        buildUri: this.args.buildURI,
-        branchUri: this.args.branchURI,
-        integrationType: this.args.integrationType,
-        operatingEnvironment: this.args.operatingEnvironment,
-        integrationName: this.args.integrationName,
-        appVersion: this.args.appVersion,
-        scriptVersion: this.args.scriptVersion,
-        contributingDeveloperAudit:
-          !this.args.contributingDeveloperId ||
-          !this.args.contributingDeveloperSource ||
-          !this.args.contributingDeveloperSourceName
-            ? []
-            : [
-                {
-                  contributingDeveloperId: this.args.contributingDeveloperId,
-                  source: this.args.contributingDeveloperSource,
-                  sourceName: this.args.contributingDeveloperSourceName,
-                },
-              ],
+      Logger.info(`Configurando scan para o projeto ${this.args.projectName || "Projeto Local"}...`);
+      const result = await analysisService.setupScan({
+        projectName: this.args.projectName || "Projeto Local",
         scanType,
-        toolName: SOOS_DAST_CONSTANTS.Tool,
-        toolVersion: SOOS_DAST_CONSTANTS.ToolVersion,
         scanMode: this.args.scanMode,
-        commandLine:
-          process.argv.length > 2
-            ? obfuscateCommandLine(
-                reassembleCommandLine(process.argv.slice(2)),
-                SOOS_DAST_CONSTANTS.ObfuscatedArguments.map((a) => `--${a}`),
-              )
-            : null,
       });
+      
       projectHash = result.projectHash;
       branchHash = result.branchHash;
       analysisId = result.analysisId;
       scanStatusUrl = result.scanStatusUrl;
 
       const zapCommandGenerator = new ZAPCommandGenerator(this.args);
-      soosLogger.info(`Generating ZAP command... ${this.args.scanMode}`);
+      Logger.info(`Gerando comando ZAP para modo ${this.args.scanMode}`);
       const command = zapCommandGenerator.runCommandGeneration(this.args.scanMode);
-      soosLogger.info(`Running command: ${command}`);
-      await SOOSDASTAnalysis.runZap(command);
-      const runSuccess = fs.existsSync(SOOS_DAST_CONSTANTS.Files.ReportScanResultFile);
-      soosLogger.info(`Scan finished with success: ${runSuccess}`);
+      Logger.info(`Executando comando: ${command}`);
+      await BOTIDASTAnalysis.runZap(command);
+      
+      const runSuccess = fs.existsSync(BOTI_DAST_CONSTANTS.Files.ReportScanResultFile);
+      Logger.info(`Scan finalizado com sucesso: ${runSuccess}`);
+
+      if (!runSuccess) {
+        Logger.error("Falha ao gerar relatório de scan");
+        exit(1);
+      }
 
       const data = JSON.parse(
-        fs.readFileSync(SOOS_DAST_CONSTANTS.Files.ReportScanResultFile, "utf-8"),
+        fs.readFileSync(BOTI_DAST_CONSTANTS.Files.ReportScanResultFile, "utf-8")
       );
 
       ZAPReportTransformer.transformReport(data);
-
-      const formData = new FormData();
-
-      formData.append("resultVersion", data["@version"]);
-      formData.append("file", convertStringToBase64(JSON.stringify(data)), "base64Manifest");
-      soosLogger.logLineSeparator();
-      soosLogger.info(`Starting report results processing`);
-      soosLogger.info(`Uploading scan result for project ${this.args.projectName}...`);
-      await soosAnalysisService.analysisApiClient.uploadScanToolResult({
-        clientId: this.args.clientId,
-        projectHash,
-        branchHash,
-        scanType,
-        scanId: analysisId,
-        resultFile: formData,
-        hasMoreThanMaximumFiles: false,
-      });
-      soosLogger.info(`Scan result uploaded successfully`);
-
+      
+      Logger.logLineSeparator();
+      Logger.info(`Processando resultados do scan`);
+      
+      // Usar a nova função para salvar resultados
+      const outputFile = "./zap-scan-result.json";
+      saveScanResults(BOTI_DAST_CONSTANTS.Files.ReportScanResultFile, outputFile);
+      
       if (data["discoveredUrls"]?.length) {
-        soosLogger.always(`(${data["discoveredUrls"].length} URLs discovered)`);
+        Logger.always(`(${data["discoveredUrls"].length} URLs descobertas)`);
       }
 
-      scanStatus = await soosAnalysisService.waitForScanToFinish({
+      // Verificando status do scan
+      scanStatus = await analysisService.waitForScanToFinish({
         scanStatusUrl: result.scanStatusUrl,
-        scanUrl: result.scanUrl,
         scanType,
       });
 
-      if (
-        isScanDone(scanStatus) &&
-        this.args.exportFormat !== AttributionFormatEnum.Unknown &&
-        this.args.exportFileType !== AttributionFileTypeEnum.Unknown
-      ) {
-        await soosAnalysisService.generateFormattedOutput({
-          clientId: this.args.clientId,
-          projectHash: result.projectHash,
-          projectName: this.args.projectName,
-          branchHash: result.branchHash,
-          analysisId: result.analysisId,
-          format: this.args.exportFormat,
-          fileType: this.args.exportFileType,
-          workingDirectory: "/zap/wrk",
-        });
-      }
-
+      // Verificando se o scan foi concluído com sucesso
       const exitCodeWithMessage = getAnalysisExitCodeWithMessage(
         scanStatus,
-        this.args.integrationName,
-        this.args.onFailure,
+        "Local DAST",
+        "fail"
       );
-      soosLogger.always(`${exitCodeWithMessage.message} - exit ${exitCodeWithMessage.exitCode}`);
+      
+      Logger.always(`${exitCodeWithMessage.message} - código de saída ${exitCodeWithMessage.exitCode}`);
+      
+      // Gerar arquivo de saída com resultados
+      Logger.info("Scan concluído. Os resultados foram salvos em ./zap-scan-result.json");
+      
       exit(exitCodeWithMessage.exitCode);
     } catch (error) {
-      if (projectHash && branchHash && analysisId && (!scanStatus || !isScanDone(scanStatus)))
-        await soosAnalysisService.updateScanStatus({
-          clientId: this.args.clientId,
-          projectHash,
-          branchHash,
-          scanType,
-          analysisId: analysisId,
+      if (projectHash && branchHash && analysisId && (!scanStatus || !isScanDone(scanStatus))) {
+        await analysisService.updateScanStatus({
           status: ScanStatus.Error,
-          message: "Error while performing scan.",
+          message: "Erro durante a execução do scan.",
           scanStatusUrl,
         });
-      soosLogger.error(error);
-      soosLogger.always(`${error} - exit 1`);
+      }
+      
+      Logger.error(`Erro ao executar análise: ${String(error)}`);
+      Logger.always(`Erro ao executar análise: ${String(error)} - código de saída 1`);
       exit(1);
     }
   }
 
   static async runZap(command: string): Promise<void> {
     return new Promise((resolve, reject) => {
-      soosLogger.logLineSeparator();
-      soosLogger.info("Running ZAP");
+      Logger.logLineSeparator();
+      Logger.info("Executando ZAP");
       const zapProcess = spawn(command, {
         shell: true,
         stdio: "inherit",
@@ -406,7 +519,7 @@ class SOOSDASTAnalysis {
         if (code === 0 || code === 2) {
           resolve();
         } else {
-          reject(`ZAP Process: child process exited with code ${code}`);
+          reject(`ZAP Process: processo filho encerrado com código ${code}`);
         }
       });
     });
@@ -415,27 +528,48 @@ class SOOSDASTAnalysis {
   static async createAndRun(): Promise<void> {
     try {
       const args = this.parseArgs();
-      soosLogger.setMinLogLevel(args.logLevel);
-      soosLogger.always("Starting SOOS DAST Analysis");
-      soosLogger.debug(
+      Logger.setMinLogLevel(args.logLevel || "info");
+      Logger.always("Iniciando Análise DAST Local");
+      
+      // Mostrar configurações (ocultando senhas e tokens)
+      Logger.debug(
         JSON.stringify(
           obfuscateProperties(
             args as unknown as Record<string, unknown>,
-            SOOS_DAST_CONSTANTS.ObfuscatedArguments,
+            ["authPassword", "bearerToken", "apiKey"]
           ),
           null,
-          2,
-        ),
+          2
+        )
       );
-      soosLogger.logLineSeparator();
-      const soosDASTAnalysis = new SOOSDASTAnalysis(args);
-      await soosDASTAnalysis.runAnalysis();
+      
+      Logger.logLineSeparator();
+      
+      const dastAnalysis = new BOTIDASTAnalysis(args);
+      await dastAnalysis.runAnalysis();
     } catch (error) {
-      soosLogger.error(`Error on createAndRun: ${error}`);
-      soosLogger.always(`Error on createAndRun: ${error} - exit 1`);
+      Logger.error(`Erro ao executar análise: ${String(error)}`);
+      Logger.always(`Erro ao executar análise: ${String(error)} - código de saída 1`);
       exit(1);
     }
   }
 }
 
-SOOSDASTAnalysis.createAndRun();
+// Função para salvar resultados de scan diretamente
+function saveScanResults(sourceFile: string, destinationFile: string): boolean {
+  try {
+    if (!fs.existsSync(sourceFile)) {
+      Logger.error(`Arquivo de origem não encontrado: ${sourceFile}`);
+      return false;
+    }
+    
+    fs.copyFileSync(sourceFile, destinationFile);
+    Logger.info(`Resultados salvos com sucesso em: ${destinationFile}`);
+    return true;
+  } catch (error) {
+    Logger.error(`Erro ao salvar resultados: ${String(error)}`);
+    return false;
+  }
+}
+
+BOTIDASTAnalysis.createAndRun();

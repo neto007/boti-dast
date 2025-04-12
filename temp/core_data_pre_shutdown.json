@@ -1,0 +1,39 @@
+{
+    "__doc__": null,
+    "__module__": "zapv2.core",
+    "__weakref__": null,
+    "excluded_from_proxy": [],
+    "home_directory": "/root",
+    "hosts": [
+        "aspnet.testsparker.com"
+    ],
+    "mode": "standard",
+    "option_alert_overrides_file_path": "",
+    "option_default_user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+    "option_dns_ttl_successful_queries": "30",
+    "option_http_state": "internal_error",
+    "option_http_state_enabled": "false",
+    "option_maximum_alert_instances": "20",
+    "option_merge_related_alerts": "true",
+    "option_proxy_chain_name": "localhost",
+    "option_proxy_chain_password": "",
+    "option_proxy_chain_port": "8090",
+    "option_proxy_chain_prompt": "false",
+    "option_proxy_chain_realm": "",
+    "option_proxy_chain_skip_name": [],
+    "option_proxy_chain_user_name": "",
+    "option_proxy_excluded_domains": [],
+    "option_proxy_excluded_domains_enabled": [],
+    "option_single_cookie_request_header": "true",
+    "option_timeout_in_secs": "20",
+    "option_use_proxy_chain": "false",
+    "option_use_proxy_chain_auth": "false",
+    "option_use_socks_proxy": "false",
+    "proxy_chain_excluded_domains": [],
+    "session_location": "",
+    "sites": [
+        "http://aspnet.testsparker.com"
+    ],
+    "version": "2.16.1",
+    "zap_home_path": "/root/.ZAP/"
+}
