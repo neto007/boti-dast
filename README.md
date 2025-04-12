@@ -1,8 +1,8 @@
-# [BOTI DAST]()
+# [zap DAST]()
 
-BOTI é uma empresa de segurança de software independente, construindo software de segurança para sua equipe.
 
-Use BOTI para escanear seu software em busca de vulnerabilidades e problemas de licenças de código aberto. Gere e ingira SBOMs. Exporte relatórios para padrões da indústria. Governe suas dependências de código aberto. Execute o escaneador de vulnerabilidades BOTI DAST contra suas aplicações web ou APIs. Escaneie seus contêineres Docker em busca de vulnerabilidades. Verifique seu código-fonte em busca de problemas com análise SAST.
+
+Use para escanear seu software em busca de vulnerabilidades e problemas de licenças de código aberto. Gere e ingira SBOMs. Exporte relatórios para padrões da indústria. Governe suas dependências de código aberto. Execute o escaneador de vulnerabilidades zap DAST contra suas aplicações web ou APIs. Escaneie seus contêineres Docker em busca de vulnerabilidades. Verifique seu código-fonte em busca de problemas com análise SAST.
 
 ## Requisitos
 - [Docker](https://www.docker.com/get-started)
@@ -11,11 +11,11 @@ Use BOTI para escanear seu software em busca de vulnerabilidades e problemas de 
 ## Como Usar
 Para iniciar a varredura, você precisa executar este comando de um terminal:
 ``` shell
-docker run -it --rm boti/dast <parâmetros>
+docker run -it --rm zap/dast <parâmetros>
 ```
 
 O comando básico para executar uma varredura de linha de base seria assim:
-`docker run -it --rm boti/dast --clientId=<SEU_CLIENT_ID> --apiKey=<SUA_API_KEY> --projectName="<NOME_DO_SEU_PROJETO>" <URL_DO_SEU_ALVO>`
+`docker run -it --rm zap/dast --clientId=<SEU_CLIENT_ID> --apiKey=<SUA_API_KEY> --projectName="<NOME_DO_SEU_PROJETO>" <URL_DO_SEU_ALVO>`
 
 ### Argumentos
 
@@ -49,7 +49,7 @@ O comando básico para executar uma varredura de linha de base seria assim:
 | `--debug` |  | Ativa o registro de depuração para ZAP. |
 | `--excludeUrlsFile` | | Caminho para um arquivo contendo URLs regex para excluir, um por linha. por exemplo `--excludeUrlsFile=exclude_urls.txt`
 | `--disableRules` |  | Lista separada por vírgula de IDs de regras ZAP para desabilitar. Lista para referência https://www.zaproxy.org/docs/alerts/ |
-| `--exportFormat`   |  | Escreva o resultado da varredura neste formato de arquivo. Opções: CsafVex, CycloneDx, Sarif, Spdx, BotiIssues, BotiLicenses, BotiPackages, BotiVulnerabilities |
+| `--exportFormat`   |  | Escreva o resultado da varredura neste formato de arquivo. Opções: CsafVex, CycloneDx, Sarif, Spdx, zapIssues, zapLicenses, zapPackages, zapVulnerabilities |
 | `--exportFileType` |  | Escreva o resultado da varredura neste tipo de arquivo (quando usado com exportFormat). Opções: Csv, Html, Json, Text, Xml                                       |
 | `--fullScanMinutes` |  | Número de minutos para o spider executar |
 | `--logLevel` |  | Nível mínimo para mostrar logs: DEBUG INFO, WARN, FAIL, ERROR. |
@@ -58,9 +58,9 @@ O comando básico para executar uma varredura de linha de base seria assim:
 | `--onFailure` | `continue_on_failure` | Ação a ser realizada quando a varredura falha. Opções: fail_the_build, continue_on_failure |
 | `--operatingEnvironment` |  | Definir ambiente operacional apenas para fins de informação |
 | `--otherOptions` |  | Argumentos adicionais de linha de comando para itens não suportados pelo conjunto de parâmetros acima |
-| `--projectName` |  | Nome do Projeto - isso é o que será exibido no aplicativo BOTI |
+| `--projectName` |  | Nome do Projeto - isso é o que será exibido no aplicativo zap |
 | `--requestHeaders` |  | Definir solicitações de cabeçalho extras |
-| `--scanMode` | `baseline` | Modo de Varredura - Modos disponíveis: baseline, fullscan e apiscan (para mais informações sobre modos de varredura, visite https://github.com/boti/boti-dast#scan-modes) |
+| `--scanMode` | `baseline` | Modo de Varredura - Modos disponíveis: baseline, fullscan e apiscan (para mais informações sobre modos de varredura, visite https://github.com/zap/zap-dast#scan-modes) |
 
 ## Modos de Varredura
 
@@ -88,7 +88,7 @@ Ele é ajustado para realizar varreduras contra APIs definidas por `openapi`, `s
 
 Para apontar para um arquivo local, use a seguinte sintaxe:
 ```
-docker run -v <caminho-absoluto-para-arquivo-local>:/zap/wrk/:rw -it --rm boti/dast --clientId=<cliente>--apiKey=<apiKey> --projectName=<nome do projeto api> --scanMode=apiscan --apiScanFormat=openapi swagger.yaml
+docker run -v <caminho-absoluto-para-arquivo-local>:/zap/wrk/:rw -it --rm zap/dast --clientId=<cliente>--apiKey=<apiKey> --projectName=<nome do projeto api> --scanMode=apiscan --apiScanFormat=openapi swagger.yaml
 ```
 
 Certifique-se de que o arquivo local ainda aponte para o endpoint ao vivo de sua API. Por exemplo, para YAML `openapi`, você definiria a seção `servers`:
